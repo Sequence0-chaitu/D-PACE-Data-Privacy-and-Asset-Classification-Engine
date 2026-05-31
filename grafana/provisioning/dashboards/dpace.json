@@ -1,0 +1,113 @@
+{
+  "title": "D-PACE Compliance Dashboard",
+  "uid": "dpace-main",
+  "version": 1,
+  "schemaVersion": 38,
+  "refresh": "30s",
+  "tags": ["dpace", "compliance", "privacy"],
+  "panels": [
+    {
+      "id": 1,
+      "title": "Data Classification Breakdown",
+      "type": "piechart",
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 8 },
+      "datasource": { "uid": "dpace-sqlite" },
+      "targets": [
+        {
+          "rawQuery": true,
+          "rawSql": "SELECT classification AS metric, COUNT(*) AS value FROM asset_inventory GROUP BY classification",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "reduceOptions": { "values": true, "fields": "/.*/", "calcs": [] },
+        "pieType": "pie",
+        "tooltip": { "mode": "single" },
+        "legend": { "displayMode": "table", "placement": "right" }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Active Retention Violations",
+      "type": "table",
+      "gridPos": { "x": 8, "y": 0, "w": 16, "h": 8 },
+      "datasource": { "uid": "dpace-sqlite" },
+      "targets": [
+        {
+          "rawQuery": true,
+          "rawSql": "SELECT pv.severity, pv.framework, pv.violation_type, ai.file_name, pv.age_days, pv.limit_days, pv.mandate, pv.detected_at FROM policy_violations pv JOIN asset_inventory ai ON ai.id = pv.asset_id WHERE pv.resolved_at IS NULL ORDER BY CASE pv.severity WHEN 'CRITICAL' THEN 1 WHEN 'HIGH' THEN 2 WHEN 'MEDIUM' THEN 3 ELSE 4 END",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "severity" },
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "color-background"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  { "type": "value", "options": { "CRITICAL": { "color": "#c0392b", "index": 0 } } },
+                  { "type": "value", "options": { "HIGH":     { "color": "#e67e22", "index": 1 } } },
+                  { "type": "value", "options": { "MEDIUM":   { "color": "#f1c40f", "index": 2 } } },
+                  { "type": "value", "options": { "LOW":      { "color": "#27ae60", "index": 3 } } }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "title": "GDPR / PCI / NIST Compliance Scorecard",
+      "type": "table",
+      "gridPos": { "x": 0, "y": 8, "w": 24, "h": 6 },
+      "datasource": { "uid": "dpace-sqlite" },
+      "targets": [
+        {
+          "rawQuery": true,
+          "rawSql": "SELECT framework, severity, COUNT(*) AS total_violations, SUM(CASE WHEN resolved_at IS NULL THEN 1 ELSE 0 END) AS open_violations, SUM(CASE WHEN resolved_at IS NOT NULL THEN 1 ELSE 0 END) AS resolved_violations FROM policy_violations GROUP BY framework, severity ORDER BY framework, CASE severity WHEN 'CRITICAL' THEN 1 WHEN 'HIGH' THEN 2 WHEN 'MEDIUM' THEN 3 ELSE 4 END",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Scan Activity — Files Scanned Over Time",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 14, "w": 12, "h": 7 },
+      "datasource": { "uid": "dpace-sqlite" },
+      "targets": [
+        {
+          "rawQuery": true,
+          "rawSql": "SELECT DATE(scanned_at) AS time, COUNT(*) AS files FROM asset_inventory GROUP BY DATE(scanned_at) ORDER BY time",
+          "format": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Top Pattern Matches",
+      "type": "bargauge",
+      "gridPos": { "x": 12, "y": 14, "w": 12, "h": 7 },
+      "datasource": { "uid": "dpace-sqlite" },
+      "targets": [
+        {
+          "rawQuery": true,
+          "rawSql": "SELECT pattern_name AS metric, SUM(match_count) AS value FROM scan_results GROUP BY pattern_name ORDER BY value DESC LIMIT 10",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "reduceOptions": { "values": true, "fields": "/.*/", "calcs": [] },
+        "orientation": "horizontal",
+        "displayMode": "gradient"
+      }
+    }
+  ]
+}

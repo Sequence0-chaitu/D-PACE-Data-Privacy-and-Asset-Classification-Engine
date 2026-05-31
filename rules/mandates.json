@@ -1,0 +1,270 @@
+{
+  "$schema": "https://d-pace.local/schema/mandates/v1",
+  "version": "1.0.0",
+  "last_updated": "2026-05-13",
+  "description": "D-PACE master policy file — defines regex patterns, retention windows, classification rules, and legal mandate mappings.",
+
+  "classification_levels": [
+    {
+      "name": "Restricted",
+      "code": "R",
+      "description": "Highest sensitivity. Data whose unauthorised disclosure would cause severe harm. Includes PCI PANs, SSNs, health records.",
+      "nist_fips199": "HIGH",
+      "color": "#c0392b"
+    },
+    {
+      "name": "Confidential",
+      "code": "C",
+      "description": "Sensitive internal data. Unauthorised disclosure would cause moderate harm. Includes internal emails, contract data.",
+      "nist_fips199": "MODERATE",
+      "color": "#e67e22"
+    },
+    {
+      "name": "Internal",
+      "code": "I",
+      "description": "Non-public data with limited sensitivity. Business documents not intended for external distribution.",
+      "nist_fips199": "LOW",
+      "color": "#2980b9"
+    },
+    {
+      "name": "Unclassified",
+      "code": "U",
+      "description": "No sensitive content detected. Public or trivially non-sensitive data.",
+      "nist_fips199": "LOW",
+      "color": "#27ae60"
+    }
+  ],
+
+  "regex_patterns": [
+    {
+      "id": "SSN",
+      "name": "US Social Security Number",
+      "pattern": "\\b(?!000|666|9\\d{2})\\d{3}[-\\s]?(?!00)\\d{2}[-\\s]?(?!0000)\\d{4}\\b",
+      "classification": "Restricted",
+      "severity": "CRITICAL",
+      "frameworks": ["GDPR", "NIST"],
+      "nist_controls": ["SC-28", "AC-3", "RA-2"],
+      "gdpr_articles": ["Art. 9", "Art. 32"],
+      "description": "Detects SSNs in plain text. Restricted under GDPR as special-category data."
+    },
+    {
+      "id": "CREDIT_CARD_PAN",
+      "name": "Payment Card PAN (Visa/MC/Amex/Discover)",
+      "pattern": "\\b(?:4[0-9]{12}(?:[0-9]{3})?|(?:5[1-5][0-9]{2}|222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|6(?:011|5[0-9]{2})[0-9]{12}|(?:2131|1800|35\\d{3})\\d{11})\\b",
+      "classification": "Restricted",
+      "severity": "CRITICAL",
+      "frameworks": ["PCI"],
+      "pci_requirements": ["Req 3.2", "Req 3.3", "Req 9.4"],
+      "description": "Detects unmasked Primary Account Numbers. Storage triggers PCI DSS Req 3.2 violation if not justified."
+    },
+    {
+      "id": "EMAIL",
+      "name": "Email Address",
+      "pattern": "\\b[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}\\b",
+      "classification": "Confidential",
+      "severity": "MEDIUM",
+      "frameworks": ["GDPR"],
+      "gdpr_articles": ["Art. 4(1)", "Art. 5", "Art. 25"],
+      "description": "Email addresses are personal data under GDPR Art. 4(1). Triggers data minimisation review."
+    },
+    {
+      "id": "PHONE_US",
+      "name": "US Phone Number",
+      "pattern": "\\b(?:\\+1[-.\\s]?)?\\(?([2-9][0-9]{2})\\)?[-.\\s]?([2-9][0-9]{2})[-.\\s]?([0-9]{4})\\b",
+      "classification": "Confidential",
+      "severity": "MEDIUM",
+      "frameworks": ["GDPR", "NIST"],
+      "gdpr_articles": ["Art. 4(1)"],
+      "nist_controls": ["AC-3"],
+      "description": "US phone numbers are personal data under GDPR."
+    },
+    {
+      "id": "IBAN",
+      "name": "International Bank Account Number",
+      "pattern": "\\b[A-Z]{2}\\d{2}[A-Z0-9]{4}\\d{7}([A-Z0-9]?){0,16}\\b",
+      "classification": "Restricted",
+      "severity": "HIGH",
+      "frameworks": ["GDPR", "PCI"],
+      "gdpr_articles": ["Art. 9", "Art. 32"],
+      "pci_requirements": ["Req 3.1"],
+      "description": "Bank account numbers. Restricted financial data."
+    },
+    {
+      "id": "IP_ADDRESS",
+      "name": "IPv4 Address",
+      "pattern": "\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b",
+      "classification": "Internal",
+      "severity": "LOW",
+      "frameworks": ["GDPR", "NIST"],
+      "gdpr_articles": ["Art. 4(1)"],
+      "nist_controls": ["CM-8"],
+      "description": "IPv4 addresses may constitute personal data under GDPR when linkable to an individual."
+    },
+    {
+      "id": "DOB",
+      "name": "Date of Birth (common formats)",
+      "pattern": "\\b(?:dob|date.of.birth|born)[:\\s]+\\d{1,2}[/\\-.]\\d{1,2}[/\\-.]\\d{2,4}\\b",
+      "classification": "Restricted",
+      "severity": "HIGH",
+      "frameworks": ["GDPR"],
+      "gdpr_articles": ["Art. 9", "Art. 25"],
+      "description": "Date of birth is sensitive personal data. Context-aware pattern (requires label)."
+    },
+    {
+      "id": "AWS_ACCESS_KEY",
+      "name": "AWS Access Key ID",
+      "pattern": "(?:AKIA|ABIA|ACCA|ASIA)[A-Z0-9]{16}",
+      "classification": "Restricted",
+      "severity": "CRITICAL",
+      "frameworks": ["NIST"],
+      "nist_controls": ["AC-3", "IA-5", "SC-28"],
+      "description": "AWS access key IDs in plaintext represent a critical credential exposure."
+    },
+    {
+      "id": "PRIVATE_KEY_HEADER",
+      "name": "PEM Private Key",
+      "pattern": "-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----",
+      "classification": "Restricted",
+      "severity": "CRITICAL",
+      "frameworks": ["NIST", "PCI"],
+      "nist_controls": ["IA-5", "SC-12", "SC-28"],
+      "pci_requirements": ["Req 3.5"],
+      "description": "PEM private key header. Indicates cryptographic key material stored in plaintext."
+    }
+  ],
+
+  "retention_policies": [
+    {
+      "framework": "GDPR",
+      "mandate": "GDPR Art. 5(1)(e) — Storage Limitation",
+      "default_retention_days": 365,
+      "description": "Personal data must not be kept longer than necessary. Default 1-year window; shorter periods apply for specific categories.",
+      "categories": {
+        "marketing": 365,
+        "transactional": 1825,
+        "hr_records": 2555,
+        "health": 3650,
+        "financial": 1825
+      },
+      "violation_severity": "HIGH",
+      "nist_cross_reference": "SI-12"
+    },
+    {
+      "framework": "PCI",
+      "mandate": "PCI DSS v4.0 Req 9.4.3 — Cardholder Data Retention",
+      "default_retention_days": 365,
+      "description": "Cardholder data (CHD) must be retained only as long as required by legal/business needs and disposed of securely.",
+      "categories": {
+        "pan": 365,
+        "transaction_records": 365,
+        "audit_logs": 365
+      },
+      "violation_severity": "CRITICAL",
+      "nist_cross_reference": "SI-12, AC-3"
+    },
+    {
+      "framework": "NIST",
+      "mandate": "NIST SP 800-53 SI-12 — Information Management and Retention",
+      "default_retention_days": 730,
+      "description": "Organisations must manage and retain system-related information in accordance with applicable laws and policies.",
+      "categories": {
+        "audit_logs": 365,
+        "system_records": 730,
+        "incident_records": 1095
+      },
+      "violation_severity": "MEDIUM",
+      "nist_cross_reference": "SI-12, AU-9, AU-11"
+    }
+  ],
+
+  "classification_rules": [
+    {
+      "rule_id": "CR-001",
+      "name": "Any CRITICAL pattern → Restricted",
+      "condition": "match.severity == 'CRITICAL'",
+      "result_classification": "Restricted",
+      "override": true
+    },
+    {
+      "rule_id": "CR-002",
+      "name": "Multiple HIGH patterns → Restricted",
+      "condition": "count(matches WHERE severity == 'HIGH') >= 2",
+      "result_classification": "Restricted",
+      "override": false
+    },
+    {
+      "rule_id": "CR-003",
+      "name": "Single HIGH pattern → Confidential",
+      "condition": "count(matches WHERE severity == 'HIGH') == 1",
+      "result_classification": "Confidential",
+      "override": false
+    },
+    {
+      "rule_id": "CR-004",
+      "name": "Only MEDIUM/LOW patterns → Confidential",
+      "condition": "all(matches WHERE severity IN ('MEDIUM','LOW'))",
+      "result_classification": "Confidential",
+      "override": false
+    },
+    {
+      "rule_id": "CR-005",
+      "name": "No pattern matches → Internal (non-public) or Unclassified",
+      "condition": "count(matches) == 0",
+      "result_classification": "Internal",
+      "override": false
+    }
+  ],
+
+  "legal_mandate_mapping": {
+    "NIST_SP_800_53": {
+      "AC-1":  "Policy and procedures for access control — enforced by classification tags",
+      "AC-3":  "Access enforcement — classification drives access decisions in downstream systems",
+      "AU-2":  "Event logging — all scans and violations written to dpace.db audit tables",
+      "AU-9":  "Protection of audit information — dpace.db should be on restricted volume",
+      "CM-8":  "Information system component inventory — asset_inventory table fulfils this",
+      "RA-2":  "Security categorisation — FIPS 199 levels mapped to classification_levels",
+      "SA-8":  "Security/Privacy engineering principles — Privacy-by-design in scanner design",
+      "SC-28": "Protection of information at rest — Restricted files flagged for encryption review",
+      "SI-12": "Information management and retention — retention_auditor enforces SI-12 windows"
+    },
+    "PCI_DSS_v4": {
+      "Req_3.1":  "Protect stored account data — CHD flagged Restricted; storage minimised",
+      "Req_3.2":  "Do not retain sensitive authentication data — CREDIT_CARD_PAN pattern triggers violation",
+      "Req_3.3":  "Protect primary account numbers (PAN) — PAN masking/storage violations logged",
+      "Req_7.2":  "Least-privilege access model — classification informs access policy",
+      "Req_9.4":  "Protect all media — Restricted physical/digital media flagged",
+      "Req_10.2": "Audit log events — scan_results and policy_violations serve as audit trail",
+      "Req_12.3": "Risk assessment — classification output feeds into risk register"
+    },
+    "GDPR": {
+      "Art_4_1":  "Definition of personal data — all PII patterns map to Art. 4(1) personal data",
+      "Art_5_1e": "Storage limitation — retention_auditor checks against GDPR retention window",
+      "Art_9":    "Special categories — SSN, DOB, health data classified Restricted",
+      "Art_17":   "Right to erasure — policy_violations of type RETENTION_EXCEEDED support Art.17",
+      "Art_25":   "Data protection by design — classification-at-discovery implements Art.25",
+      "Art_30":   "Records of processing — asset_inventory + scan_results = Art.30 record",
+      "Art_32":   "Security of processing — Restricted data triggers encryption/access review",
+      "Art_83":   "Administrative fines context — violation severity aligns with Art.83 tiers"
+    }
+  },
+
+  "file_extensions_in_scope": [
+    ".csv", ".txt", ".json", ".xml", ".yaml", ".yml",
+    ".log", ".sql", ".tsv", ".md", ".html", ".eml",
+    ".pdf", ".docx", ".xlsx"
+  ],
+
+  "file_extensions_excluded": [
+    ".exe", ".dll", ".so", ".bin", ".jpg", ".jpeg",
+    ".png", ".gif", ".mp4", ".zip", ".tar", ".gz"
+  ],
+
+  "scan_settings": {
+    "max_file_size_mb": 100,
+    "follow_symlinks": false,
+    "scan_hidden_files": false,
+    "encoding_fallback": "latin-1",
+    "max_matches_per_file": 1000,
+    "batch_size": 50
+  }
+}

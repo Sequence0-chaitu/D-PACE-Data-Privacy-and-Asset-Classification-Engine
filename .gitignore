@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+*.egg
+
+# Database (never commit live data)
+dpace/db/dpace.db
+*.db
+*.sqlite3
+
+# Reports (generated output)
+reports/
+*.json.out
+
+# Environment
+.env
+.env.*
+*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# Docker
+grafana/storage/
+
+# Mock data (may contain real PII in testing — never commit)
+tests/mock_data/

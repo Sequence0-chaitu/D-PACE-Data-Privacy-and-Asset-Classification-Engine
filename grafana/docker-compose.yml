@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  grafana:
+    image: grafana/grafana-oss:10.4.2
+    container_name: dpace-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_INSTALL_PLUGINS: frser-sqlite-datasource
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./provisioning:/etc/grafana/provisioning
+      # Mount the dpace.db read-only into the container
+      - ../dpace/db/dpace.db:/var/lib/dpace/dpace.db:ro
+
+volumes:
+  grafana-storage:
