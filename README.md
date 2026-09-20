@@ -2,7 +2,7 @@
 
 > **Asset Governance Architecture** | Arch Linux · Python · SQLite · Grafana · Docker
 
-D-PACE is a local-first data governance tool that scans your file system for sensitive data, classifies assets, audits retention compliance, and surfaces violations through a live Grafana dashboard — all aligned with **NIST SP 800-53**, **PCI DSS v4.0**, and **GDPR** mandates.
+D-PACE is a local-first data governance tool that scans your file system for sensitive data, classifies assets, audits retention compliance, and surfaces violations through a live Grafana dashboard — all aligned with **NIST SP 800-53**, **PCI DSS v4.0**, and **GDPR** mandates.(Only for educational purposes)
 
 ---
 
