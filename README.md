@@ -310,4 +310,4 @@ Test coverage targets:
 
 MIT License — see [`LICENSE`](LICENSE) for details.
 
-> **Disclaimer:** D-PACE is a compliance *aid*, not a legal guarantee. Always engage qualified legal counsel for formal GDPR / PCI DSS compliance assessments.(This project is only for educational purposes)
+> **Disclaimer:** D-PACE is a compliance (For education) not *aid*, not a legal guarantee. Always engage qualified legal counsel for formal GDPR / PCI DSS compliance assessments.(This project is only for educational purposes)
