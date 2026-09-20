@@ -1,0 +1,16 @@
+apiVersion: 1
+
+# Without this provider file Grafana never picks up dpace.json.
+# Grafana treats *.yaml/*.yml in this directory as provider configs and
+# *.json as dashboards, so both can live side by side.
+providers:
+  - name: D-PACE
+    orgId: 1
+    folder: D-PACE
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: false

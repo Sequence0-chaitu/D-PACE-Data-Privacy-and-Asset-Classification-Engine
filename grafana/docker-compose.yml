@@ -1,0 +1,25 @@
+# NOTE: no top-level `version:` key — it is obsolete in Compose v2 and only
+# emits a warning on modern Docker.
+
+services:
+  grafana:
+    image: grafana/grafana-oss:10.4.2
+    container_name: dpace-grafana
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"   # bind to localhost only, not all interfaces
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GF_ADMIN_USER}        # from grafana/.env
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_INSTALL_PLUGINS: frser-sqlite-datasource
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./provisioning:/etc/grafana/provisioning
+      # Mount the whole db DIRECTORY read-only, not the single .db file.
+      # A single-file bind mount goes stale if SQLite ever replaces the inode,
+      # and it hides any sidecar journal files from the reader.
+      - ../dpace/db:/var/lib/dpace:ro
+
+volumes:
+  grafana-storage:

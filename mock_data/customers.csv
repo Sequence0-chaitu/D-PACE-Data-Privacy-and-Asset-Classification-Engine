@@ -1,0 +1,4 @@
+customer_id,full_name,email,ssn,card_pan,signup_ip
+1001,John Smith,john.smith@example.com,123-45-6789,4111111111111111,192.168.1.10
+1002,Jane Doe,jane.doe@example.org,234-56-7890,4222222222222,192.168.1.11
+1003,Alan Turing,alan.t@example.net,345-67-8901,4012888888881881,10.0.0.7

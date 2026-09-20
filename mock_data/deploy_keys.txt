@@ -1,0 +1,4 @@
+AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAxfakekeymaterialforlocaltestingonlynotarealkey00000
+-----END RSA PRIVATE KEY-----
